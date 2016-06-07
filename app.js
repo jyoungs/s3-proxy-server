@@ -2,6 +2,7 @@ const express = require('express')
 const aws4  = require('aws4')
 const https = require('https')
 const url = require('url')
+const path = require('path')
 const auth = require('basic-auth')
 
 const config = require('./config')
@@ -24,7 +25,6 @@ app.use((req, res, next) => {
 })
 
 app.use((req, res, next) => {
-  const reqUrl = formatReqUrl(req)
   let path = '/' + config.bucket
   if (req.subdomains.length) {
     path += '/' + req.subdomains.join('/')
@@ -36,7 +36,8 @@ app.use((req, res, next) => {
   })
   https.get(opts, (s3Response) => {
     res.set(filterS3ResponseHeaders(s3Response.headers))
-    if (s3Response.statusCode === 404 && !/\/$/.test(reqUrl)) {
+    if (s3Response.statusCode === 404 && shouldTryRedirect(req)) {
+      const reqUrl = formatReqUrl(req)
       res.statusCode = 301
       res.setHeader('location', reqUrl + '/')
       res.end('Moved: ' + reqUrl + '/')
@@ -50,6 +51,12 @@ app.use((req, res, next) => {
     s3Response.pipe(res)
   }).on('error', next)
 })
+
+function shouldTryRedirect(req) {
+  const hasExt = path.extname(req.path) !== ''
+  const endsWithSlash = !/\/$/.test(req.path)
+  return !endsWithSlash && !hasExt
+}
 
 function formatReqUrl(req) {
   return url.format({
