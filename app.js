@@ -26,9 +26,8 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   const reqUrl = formatReqUrl(req)
   let path = '/' + config.bucket
-  console.log(req.subdomains)
   if (req.subdomains.length) {
-    path += req.subdomains.join('/')
+    path += '/' + req.subdomains.join('/')
   }
   path += req.path.replace(/\/$/, '/index.html')
   const opts = aws4.sign({
