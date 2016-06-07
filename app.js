@@ -1,6 +1,7 @@
 const express = require('express')
 const aws4  = require('aws4')
 const https = require('https')
+const url = require('url')
 const auth = require('basic-auth')
 
 const config = require('./config')
@@ -23,7 +24,9 @@ app.use((req, res, next) => {
 })
 
 app.use((req, res, next) => {
+  const reqUrl = formatReqUrl(req)
   let path = '/' + config.bucket
+  console.log(req.subdomains)
   if (req.subdomains.length) {
     path += req.subdomains.join('/')
   }
@@ -34,7 +37,12 @@ app.use((req, res, next) => {
   })
   https.get(opts, (s3Response) => {
     res.set(filterS3ResponseHeaders(s3Response.headers))
-    if (s3Response.statusCode !== 200) {
+    if (s3Response.statusCode === 404 && !/\/$/.test(reqUrl)) {
+      res.statusCode = 301
+      res.setHeader('location', reqUrl + '/')
+      res.end('Moved: ' + reqUrl + '/')
+      return next()
+    } else if (s3Response.statusCode !== 200) {
       const err = new Error('S3 proxy error')
       err.status = s3Response.statusCode
       return next(err)
@@ -43,6 +51,14 @@ app.use((req, res, next) => {
     s3Response.pipe(res)
   }).on('error', next)
 })
+
+function formatReqUrl(req) {
+  return url.format({
+    protocol: req.protocol,
+    host: req.get('host'),
+    pathname: req.path
+  })
+}
 
 function filterS3ResponseHeaders (headers) {
   const out = {}
