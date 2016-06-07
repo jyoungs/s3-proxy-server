@@ -1,0 +1,34 @@
+{
+  "name": "s3-proxy-server",
+  "description": "Authenticate and proxy web requests to an S3 bucket",
+  "keywords": [
+    "aws",
+    "amazon",
+    "s3",
+    "proxy"
+  ],
+  "repository": "https://github.com/digidem/s3-proxy-server",
+  "env": {
+    "USERNAME": {
+        "description": "Username to authenticate requests",
+        "required": false
+    },
+    "PASSWORD": {
+        "description": "Password to authenticate requests",
+        "required": false
+    },
+    "BUCKET": {
+        "description": "S3 Bucket to proxy"
+    },
+    "HOSTNAME": {
+        "description": "Hostname of this server (required if you want subdomains to be translated into path prefixes)",
+        "required": false
+    },
+    "AWS_ACCESS_KEY_ID": {
+        "description": "AWS Access Key ID (must have getObject permission for the bucket)"
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+        "description": "AWS Secret Access Key associated with the Key ID"
+    }
+  }
+}
