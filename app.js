@@ -43,6 +43,7 @@ app.use((req, res, next) => {
       res.end('Moved: ' + reqUrl + '/')
       return next()
     } else if (s3Response.statusCode !== 200) {
+      console.log(path)
       const err = new Error('S3 proxy error')
       err.status = s3Response.statusCode
       return next(err)
