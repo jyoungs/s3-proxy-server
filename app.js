@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 })
 
 app.use((req, res, next) => {
-  let path = '/' + config.bucket
+  let path = ''
   if (req.subdomains.length) {
     path += '/' + req.subdomains.join('/')
   }
