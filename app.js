@@ -4,10 +4,21 @@ const https = require('https')
 const url = require('url')
 const path = require('path')
 const auth = require('basic-auth')
+var awscred = require('awscred')
 
 const config = require('./config')
 
 const app = express()
+
+//FIXME: these credentials time out after ?6 hours?
+if(process.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI) {
+  awscred.load(function(err, data) {
+    if (err) throw err
+    process.env.AWS_SECRET_ACCESS_KEY = data.credentials.secretAccessKey
+    process.env.AWS_ACCESS_KEY_ID = data.credentials.accessKeyId
+    process.env.AWS_SESSION_TOKEN = data.credentials.sessionToken
+  })
+}
 
 app.set('subdomain offset', config.hostname ? config.hostname.split('.').length : 2)
 const realm = config.hostname || 'S3 Proxy'
