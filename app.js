@@ -37,9 +37,9 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   let path = ''
-  if (req.subdomains.length) {
-    path += '/' + req.subdomains.join('/')
-  }
+  // if (req.subdomains.length) {
+  //   path += '/' + req.subdomains.join('/')
+  // }
   path += req.path.replace(/\/$/, '/index.html')
   const opts = aws4.sign({
     service: 's3',
